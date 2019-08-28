@@ -5,10 +5,10 @@ export class Robot {
 }
 
 export class Case {
-  top: boolean;
-  left: boolean;
-  right: boolean;
-  bottom: boolean;
+  Top: boolean;
+  Left: boolean;
+  Right: boolean;
+  Bottom: boolean;
 }
 
 export class Target {
