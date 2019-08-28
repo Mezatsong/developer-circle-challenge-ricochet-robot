@@ -1,7 +1,17 @@
+
+export enum Direction {
+  TOP,
+  BOTTOM,
+  LEFT,
+  RIGHT
+}
+
 export class Robot {
   color: string;
   description: string;
-  label: string; 
+  label: string;
+  posX: number;
+  posY: number;
 }
 
 export class Case {
@@ -20,6 +30,12 @@ export class Target {
 
 export class Game {
   grid: Case[][];
-  robots: Robot[][];
+  robots: Robot[];
   target: Target;
+}
+
+
+export class Move {
+  robotIndex: number;
+  direction: Direction
 }
