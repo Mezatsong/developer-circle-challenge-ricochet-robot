@@ -1,4 +1,4 @@
-import { Game, Direction, Move } from "../models";
+import { Game, Direction, Move, Robot } from "../models";
 
 /**
  * Node of BFS algorithm tree
@@ -28,8 +28,42 @@ const MAX_DEPTH = 12;
  * Execute the move and return the resulted game
  * @param move 
  */
-const slideRobot = (move: Move): Game => {
-  return null;
+const slideRobot = (move: Move, game: Game): Game => {
+
+  let x = game.robots[move.robotIndex].posX,
+      y = game.robots[move.robotIndex].posY;
+
+  if(move.direction == Direction.TOP) {
+    //when you goto top, 'y' increase while 'x' stay unchanged
+    while ((game.grid[x].length > y+1) && !game.grid[x][y].top && !game.grid[x][y+1].bottom) { 
+      y++;
+    }
+  }
+
+  if (move.direction == Direction.BOTTOM) {
+    //when you goto top, 'y' decrease while 'x' stay unchanged
+    while (y > 1 && !game.grid[x][y].bottom && !game.grid[x][y-1].top) {
+      y--;
+    }
+  }
+
+  if (move.direction == Direction.RIGHT) {
+    //when you goto top, 'y' stay unchanged while 'x' increase
+    while ((game.grid.length > x+1) && !game.grid[x][y].right && !game.grid[x+1][y].left) {
+      x++;
+    }
+  }
+
+  if (move.direction == Direction.LEFT) {
+    //when you goto top, 'y' stay unchanged while 'x' decrease
+    while (x > 1 && !game.grid[x][y].left && !game.grid[x-1][y].right) {
+      x--;
+    }
+  }
+
+  game.robots[move.robotIndex].posX = x;
+  game.robots[move.robotIndex].posY = y;
+  return game;
 }
 
 /**
@@ -84,7 +118,7 @@ const solve = (game: Game, maxDepth: number = MAX_DEPTH): Move[] => {
   let winnerItem: BFSItem = null;   //the item where the game is solved
 
   while (queue.length > 0 && --maxDepth > 0) {
-    let item = queue.pop();
+    let item = queue.splice(0, 1)[0]; //delete first element and return it
     let { game, previous } = item;
 
     //traitement
@@ -105,7 +139,7 @@ const solve = (game: Game, maxDepth: number = MAX_DEPTH): Move[] => {
           game: slideRobot({
             robotIndex: i,
             direction: allDirections[j]
-          }),
+          }, game),
           previous: {
             robotIndex: i,
             direction: oppositeDirection(allDirections[j])  //to avoid backward move
