@@ -1,4 +1,5 @@
-import { Game, Direction, Move, Robot } from "../models";
+import { Game, Direction, Move } from "../models";
+import { slideRobot } from "./helpers";
 
 /**
  * Node of BFS algorithm tree
@@ -24,47 +25,6 @@ const allDirections: Direction[] = [
  */
 const MAX_DEPTH = 12;
 
-/**
- * Execute the move and return the resulted game
- * @param move 
- */
-const slideRobot = (move: Move, game: Game): Game => {
-
-  let x = game.robots[move.robotIndex].posX,
-      y = game.robots[move.robotIndex].posY;
-
-  if(move.direction == Direction.TOP) {
-    //when you goto top, 'y' increase while 'x' stay unchanged
-    while ((game.grid[x].length > y+1) && !game.grid[x][y].top && !game.grid[x][y+1].bottom) { 
-      y++;
-    }
-  }
-
-  if (move.direction == Direction.BOTTOM) {
-    //when you goto top, 'y' decrease while 'x' stay unchanged
-    while (y > 1 && !game.grid[x][y].bottom && !game.grid[x][y-1].top) {
-      y--;
-    }
-  }
-
-  if (move.direction == Direction.RIGHT) {
-    //when you goto top, 'y' stay unchanged while 'x' increase
-    while ((game.grid.length > x+1) && !game.grid[x][y].right && !game.grid[x+1][y].left) {
-      x++;
-    }
-  }
-
-  if (move.direction == Direction.LEFT) {
-    //when you goto top, 'y' stay unchanged while 'x' decrease
-    while (x > 1 && !game.grid[x][y].left && !game.grid[x-1][y].right) {
-      x--;
-    }
-  }
-
-  game.robots[move.robotIndex].posX = x;
-  game.robots[move.robotIndex].posY = y;
-  return game;
-}
 
 /**
  * Check if given game is solved
@@ -72,12 +32,12 @@ const slideRobot = (move: Move, game: Game): Game => {
  */
 const isSolved = (game: Game): boolean => {
 
-  const targetPosX = game.target.posX;
-  const targetPosY = game.target.posY;
+  const targetline = game.target.line;
+  const targetcolumn = game.target.column;
 
   for (let i = 0, l = game.robots.length; i < l; i++) {
-    let { posX, posY } = game.robots[i];
-    if (posX == targetPosX && posY == targetPosY) {
+    let { line, column } = game.robots[i];
+    if (line == targetline && column == targetcolumn) {
       return true;
     }
   }

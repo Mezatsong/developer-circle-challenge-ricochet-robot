@@ -10,22 +10,22 @@ export class Robot {
   color: string;
   description: string;
   label: string;
-  posX: number;
-  posY: number;
+  line: number;
+  column: number;
 }
 
 export class Case {
-  top: boolean;
-  left: boolean;
-  right: boolean;
-  bottom: boolean;
+  _top: boolean;
+  _left: boolean;
+  _right: boolean;
+  _bottom: boolean;
 }
 
 export class Target {
   color: string;
   label: string;
-  posX: number;
-  posY: number;
+  line: number;
+  column: number;
 }
 
 export class Game {
