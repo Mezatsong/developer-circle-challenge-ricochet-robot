@@ -15,9 +15,47 @@ export const randomNumber = (min: number, max: number) => {
  * @param min 
  * @param max 
  */
-export const randomInt = (min: number, max: number) => {
-  return parseInt((min + Math.random() * (max + 1 - min)) + '');
+export const randomInt = (min: number, max: number, excludes: number[] = []) => {
+  let n = parseInt((min + Math.random() * (max + 1 - min)) + '');
+  while (excludes.includes(n)) n = parseInt((min + Math.random() * (max + 1 - min)) + '');
+  return n;
 }
+
+
+const thereIsRobotAt = (game: Game, row: number, column: number): boolean => {
+  for(let i=0, t = game.robots.length; i < t; ++i) {
+    if(game.robots[i].row == row && game.robots[i].column == column) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
+/**
+ * Check if given game is solved
+ * @param game 
+ */
+export const isSolved = (game: Game): boolean => {
+
+  const targetRow = game.target.row;
+  const targetColumn = game.target.column;
+  const targetColor = game.target.color;
+
+  for (let i = 0, l = game.robots.length; i < l; i++) {
+    let { row, column, color } = game.robots[i];
+    if (row == targetRow && column == targetColumn && color == targetColor) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+
+
 
 
 
@@ -26,39 +64,38 @@ export const randomInt = (min: number, max: number) => {
  * @param move 
  */
 export const slideRobot = (move: Move, game: Game): Game => {
-
-  let x = game.robots[move.robotIndex].line,
-    y = game.robots[move.robotIndex].column;
-
-  if (move.direction == Direction.TOP) {
-    //when you goto top, 'y' increase while 'x' stay unchanged
-    while ((game.grid[x].length > y + 1) && !game.grid[x][y]._top && !game.grid[x][y + 1]._bottom) {
-      y++;
-    }
-  }
-
-  if (move.direction == Direction.BOTTOM) {
-    //when you goto top, 'y' decrease while 'x' stay unchanged
-    while (y > 1 && !game.grid[x][y]._bottom && !game.grid[x][y - 1]._top) {
-      y--;
-    }
-  }
+  let r = game.robots[move.robotIndex].row,
+    c = game.robots[move.robotIndex].column;
 
   if (move.direction == Direction.RIGHT) {
-    //when you goto top, 'y' stay unchanged while 'x' increase
-    while ((game.grid.length > x + 1) && !game.grid[x][y]._right && !game.grid[x + 1][y]._left) {
-      x++;
+    //when you goto right, 'c' increase while 'r' stay unchanged
+    while (c + 1 < game.grid[r].length && !game.grid[r][c]._right && !game.grid[r][c + 1]._left && !thereIsRobotAt(game, r, c + 1)) {
+      c++;
     }
   }
 
   if (move.direction == Direction.LEFT) {
-    //when you goto top, 'y' stay unchanged while 'x' decrease
-    while (x > 1 && !game.grid[x][y]._left && !game.grid[x - 1][y]._right) {
-      x--;
+    //when you goto left, 'c' decrease while 'r' stay unchanged
+    while (c - 1 >= 0 && !game.grid[r][c]._left && !game.grid[r][c - 1]._right && !thereIsRobotAt(game, r, c - 1)) {
+      c--;
     }
   }
 
-  game.robots[move.robotIndex].line = x;
-  game.robots[move.robotIndex].column = y;
+  if (move.direction == Direction.BOTTOM) {
+    //when you goto top, 'c' stay unchanged while 'r' increase
+    while (r + 1 < game.grid.length && !game.grid[r][c]._bottom && !game.grid[r + 1][c]._top && !thereIsRobotAt(game, r + 1, c)) {
+      r++;
+    }
+  }
+
+  if (move.direction == Direction.TOP) {
+    //when you goto top, 'c' stay unchanged while 'r' decrease
+    while (r - 1 >= 0 && !game.grid[r][c]._top && !game.grid[r - 1][c]._bottom && !thereIsRobotAt(game, r - 1, c)) {
+      r--;
+    }
+  }
+
+  game.robots[move.robotIndex].row = r;
+  game.robots[move.robotIndex].column = c;
   return game;
 }

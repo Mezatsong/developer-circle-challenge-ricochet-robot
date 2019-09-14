@@ -1,5 +1,5 @@
 import { Game, Direction, Move } from "../models";
-import { slideRobot } from "./helpers";
+import { slideRobot, isSolved } from "./helpers";
 
 /**
  * Node of BFS algorithm tree
@@ -23,27 +23,7 @@ const allDirections: Direction[] = [
 /**
  * Max depth to find solution
  */
-const MAX_DEPTH = 12;
-
-
-/**
- * Check if given game is solved
- * @param game 
- */
-const isSolved = (game: Game): boolean => {
-
-  const targetline = game.target.line;
-  const targetcolumn = game.target.column;
-
-  for (let i = 0, l = game.robots.length; i < l; i++) {
-    let { line, column } = game.robots[i];
-    if (line == targetline && column == targetcolumn) {
-      return true;
-    }
-  }
-
-  return false;
-}
+const MAX_DEPTH = 5000;
 
 
 /**
@@ -70,7 +50,8 @@ const oppositeDirection = (dir: Direction): Direction => {
 /**
  * Solve the game using breadth-first search algorith
  */
-const solve = (game: Game, maxDepth: number = MAX_DEPTH): Move[] => {
+const solve = (pGame: Game, maxDepth: number = MAX_DEPTH): Move[] => {
+  let game = pGame.clone();
   const queue: BFSItem[] = [];
 
   queue.push({ game, previous: null, parent: null });
@@ -78,6 +59,7 @@ const solve = (game: Game, maxDepth: number = MAX_DEPTH): Move[] => {
   let winnerItem: BFSItem = null;   //the item where the game is solved
 
   while (queue.length > 0 && --maxDepth > 0) {
+    //if(!confirm(JSON.stringify(queue.length))) break;
     let item = queue.splice(0, 1)[0]; //delete first element and return it
     let { game, previous } = item;
 
@@ -94,12 +76,23 @@ const solve = (game: Game, maxDepth: number = MAX_DEPTH): Move[] => {
           continue;
         }
 
+        let newGame = game.clone();
+        //alert('av ' + newGame.robots[i].row + ' et ' + newGame.robots[i].column);
+        newGame = slideRobot({
+          robotIndex: i,
+          direction: allDirections[j]
+        }, newGame);
+        //alert('nx ' + newGame.robots[i].row + ' et ' + newGame.robots[i].column);
+        
+        //Do nothing if the robot position stay unchanged after a move
+        if (game.robots[i].row == newGame.robots[i].row && game.robots[i].column == newGame.robots[i].column) {
+          //alert('SAME POSITION');
+          continue;
+        }
+
         queue.push({
           parent: item,
-          game: slideRobot({
-            robotIndex: i,
-            direction: allDirections[j]
-          }, game),
+          game: newGame,
           previous: {
             robotIndex: i,
             direction: oppositeDirection(allDirections[j])  //to avoid backward move
@@ -126,7 +119,7 @@ const solve = (game: Game, maxDepth: number = MAX_DEPTH): Move[] => {
     winnerItem = winnerItem.parent;
   }
 
-  return solution.reverse();
+  return solution.reverse(); 
 }
 
 
